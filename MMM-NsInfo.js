@@ -2,6 +2,198 @@
  *
  * By: Mike Mestebeld
  */
+
+class intermediateStation {
+  constructor(name,timeOfDeparture) {
+    this.name = name
+    this.timeOfDeparture = timeOfDeparture
+  }
+}
+class Trip {
+  constructor(originStationName,destinationStationName,originPlannedTime,originActualTime,destinationPlannedTime,originPlatform,destinationPlatform,crowd,direction,trainType) {
+    this.originStationName = originStationName
+    this.destinationStationName = destinationStationName
+    this.originPlannedTime = originPlannedTime
+    this.originActualTime = originActualTime
+    this.destinationPlannedTime = destinationPlannedTime
+    this.originPlatform = originPlatform
+    this.destinationPlatform = destinationPlatform
+    this.crowd = crowd
+    this.direction = direction
+    this.trainType = trainType
+    const parsedPlannedDate = this.dateParser(originPlannedTime);
+    const parsedActualDate = this.dateParser(originActualTime);
+    this.delay = (parsedActualDate - parsedPlannedDate) / (1000 * 60);
+    console.log(this.delay)
+  }
+  dateParser(date) {
+    return new Date(date);
+  }
+  getCard() {
+    var row_original = document.createElement("tr");
+    var card = document.createElement("div");
+    card.className = "card";
+
+    var cardTable = document.createElement("table")
+    cardTable.className = "card-table"
+
+    var row = document.createElement("tr");
+    var col1 = document.createElement("td");
+    var row1 = document.createElement("tr");
+    var row2 = document.createElement("tr");
+    var row3 = document.createElement("tr");
+    row1.className = "card-time";
+    row1.innerHTML = this.originPlannedTime
+      .split("T")[1]
+      .split("+")[0]
+      .split(":", 2)
+      .join(":");
+    row2.className = "card-time";
+    row2.innerHTML = '<i class="fa-solid fa-arrow-down"></i>'
+
+    row3.className = "card-time";
+    row3.innerHTML = this.destinationPlannedTime
+      .split("T")[1]
+      .split("+")[0]
+      .split(":", 2)
+      .join(":");
+    col1.appendChild(row1)
+    col1.appendChild(row2)
+    col1.appendChild(row3)
+
+    row.appendChild(col1)
+
+    if (this.delay > 0) {
+      var delayCell = document.createElement("td");
+      delayCell.className = "delay medium";
+      delayCell.innerHTML = "+" + Math.round(this.delay);
+      row.appendChild(delayCell);
+    } else {
+      var delayCell = document.createElement("td");
+      delayCell.className = "delay0 medium";
+      delayCell.innerHTML = "  ";
+      console.log(Math.round(this.delay))
+      row.appendChild(delayCell);
+    }
+
+    var col2 = document.createElement("td");
+    var table2 = document.createElement("table");
+    var row1 = document.createElement("tr");
+    row1.className = "train-info"
+    var row2 = document.createElement("tr");
+    row2.className = "train-route"
+
+    var row1col = document.createElement("td")
+
+    var crowd = document.createElement("a");
+    if(this.crowd == "LOW") {
+      crowd.className = "crowd crowd-low";
+      crowd.innerHTML = '<i class="fa-solid fa-person"></i>'
+    } else if(this.crowd == "MEDIUM") {
+      crowd.className = "crowd crowd-medium";
+      crowd.innerHTML = '<i class="fa-solid fa-person"></i><i class="fa-solid fa-person"></i>'
+    } else if(this.crowd == "HIGH") {
+      crowd.className = "crowd crowd-high";
+      crowd.innerHTML = '<i class="fa-solid fa-person"></i><i class="fa-solid fa-person"></i><i class="fa-solid fa-person"></i>'
+    } else {
+      crowd.className = "crowd crowd-unknown";
+      crowd.innerHTML = '<i class="fa-solid fa-user-slash"></i>'
+    }
+    row1col.appendChild(crowd);
+
+    var trainCell = document.createElement("a");
+    trainCell.className = "card-train-type";
+    trainCell.innerHTML = this.trainType;
+    row1col.appendChild(trainCell);
+
+    var DirectionCell = document.createElement("a");
+    DirectionCell.className = "card-train-direction";
+    DirectionCell.innerHTML = this.direction;
+    row1col.appendChild(DirectionCell);
+    row1.appendChild(row1col)
+
+    var stationCell = document.createElement("td");
+    stationCell.className = "card-train-route";
+    stationCell.innerHTML = this.originStationName+" "+this.originPlatform+" "+'<i class="fa-solid fa-arrow-right"></i>'+" "+this.destinationStationName+" "+this.destinationPlatform;
+    row2.appendChild(stationCell);
+    table2.appendChild(row1)
+    table2.appendChild(row2)
+    col2.appendChild(table2)
+    row.appendChild(col2)
+    cardTable.appendChild(row)
+    card.appendChild(cardTable)
+    row_original.appendChild(card)
+    return row_original;
+  }
+
+  getHTML() {
+    var row = document.createElement("tr");
+
+    var timeCell = document.createElement("td");
+    timeCell.className = "departure xsmall";
+
+    var departure = this.originPlannedTime
+      .split("T")[1]
+      .split("+")[0]
+      .split(":", 2)
+      .join(":");
+    
+    var arrow = '<i class="fa-solid fa-arrow-right"></i>'
+    var arrival = this.destinationPlannedTime
+    .split("T")[1]
+    .split("+")[0]
+    .split(":", 2)
+    .join(":");
+
+    timeCell.innerHTML = departure+" "+arrow+" "+arrival;
+    row.appendChild(timeCell);
+
+    if (this.delay > 0) {
+      var delayCell = document.createElement("td");
+      delayCell.className = "delay";
+      delayCell.innerHTML = "+" + Math.round(this.delay);
+      row.appendChild(delayCell);
+    } else {
+      var delayCell = document.createElement("td");
+      delayCell.className = "delay0";
+      delayCell.innerHTML = Math.round(this.delay);
+      row.appendChild(delayCell);
+    }
+    console.log(this.crowd);
+    var crowd = document.createElement("td");
+    if(this.crowd == "LOW") {
+      crowd.className = "crowd-low";
+      crowd.innerHTML = '<i class="fa-solid fa-person"></i>'
+    } else if(this.crowd == "MEDIUM") {
+      crowd.className = "crowd-medium";
+      crowd.innerHTML = '<i class="fa-solid fa-person"></i><i class="fa-solid fa-person"></i>'
+    } else if(this.crowd == "HIGH") {
+      crowd.className = "crowd-high";
+      crowd.innerHTML = '<i class="fa-solid fa-person"></i><i class="fa-solid fa-person"></i><i class="fa-solid fa-person"></i>'
+    } else {
+      crowd.className = "crowd-unknown";
+      crowd.innerHTML = '<i class="fa-solid fa-user-slash"></i>'
+    }
+    row.appendChild(crowd);
+
+    var trainCell = document.createElement("td");
+    trainCell.className = "train";
+    trainCell.innerHTML = this.trainType;
+    row.appendChild(trainCell);
+
+    var DirectionCell = document.createElement("td");
+    DirectionCell.className = "direction";
+    DirectionCell.innerHTML = this.direction;
+    row.appendChild(DirectionCell);
+
+    var stationCell = document.createElement("td");
+    stationCell.className = "station";
+    stationCell.innerHTML = this.originStationName+" "+this.originPlatform+" "+'<i class="fa-solid fa-arrow-right"></i>'+" "+this.destinationStationName+" "+this.destinationPlatform;
+    row.appendChild(stationCell);
+
+    return row;
+  }
+}
 Module.register("MMM-NsInfo", {
   // Default module config.
   defaults: {
@@ -18,8 +210,6 @@ Module.register("MMM-NsInfo", {
     destinationUIC: 8400058,
     calendarClass: "calendar",
     tableClass: "small",
-    originUicCode: 8400058,
-    destinationUicCode: 8400058,
 
     BaseURL:
       "https://gateway.apiportal.ns.nl/reisinformatie-api/api/v3/trips?",
@@ -76,70 +266,8 @@ Module.register("MMM-NsInfo", {
     for (var t in this.travels) {
       var travel = this.travels[t];
 
-      var row = document.createElement("tr");
+      var row = travel.getCard()
       table.appendChild(row);
-
-      var timeCell = document.createElement("td");
-      timeCell.className = "departure xsmall";
-
-      departure = travel.plannedDepartureDate
-        .split("T")[1]
-        .split("+")[0]
-        .split(":", 2)
-        .join(":");
-      
-      arrow = '<i class="fa-solid fa-arrow-right"></i>'
-      arrival = travel.destDate
-      .split("T")[1]
-      .split("+")[0]
-      .split(":", 2)
-      .join(":");
-
-      timeCell.innerHTML = departure+" "+arrow+" "+arrival;
-      row.appendChild(timeCell);
-
-      if (travel.delay > 0) {
-        var delayCell = document.createElement("td");
-        delayCell.className = "delay";
-        delayCell.innerHTML = "+" + Math.round(travel.delay);
-        row.appendChild(delayCell);
-      } else {
-        var delayCell = document.createElement("td");
-        delayCell.className = "delay0";
-        delayCell.innerHTML = "  ";
-        row.appendChild(delayCell);
-      }
-      console.log(travel.crowd);
-      var crowd = document.createElement("td");
-      if(travel.crowd == "LOW") {
-        crowd.className = "crowd-low";
-        crowd.innerHTML = '<i class="fa-solid fa-person"></i>'
-      } else if(travel.crowd == "MEDIUM") {
-        crowd.className = "crowd-medium";
-        crowd.innerHTML = '<i class="fa-solid fa-person"></i><i class="fa-solid fa-person"></i>'
-      } else if(travel.crowd == "HIGH") {
-        crowd.className = "crowd-high";
-        crowd.innerHTML = '<i class="fa-solid fa-person"></i><i class="fa-solid fa-person"></i><i class="fa-solid fa-person"></i>'
-      } else {
-        crowd.className = "crowd-unknown";
-        crowd.innerHTML = '<i class="fa-solid fa-user-slash"></i>'
-      }
-      row.appendChild(crowd);
-
-      var trainCell = document.createElement("td");
-      trainCell.className = "train";
-      trainCell.innerHTML = travel.train;
-      row.appendChild(trainCell);
-
-      var DirectionCell = document.createElement("td");
-      DirectionCell.className = "direction";
-      DirectionCell.innerHTML = travel.direction;
-      row.appendChild(DirectionCell);
-
-      var stationCell = document.createElement("td");
-      stationCell.className = "station";
-      stationCell.innerHTML = travel.originStation+" "+travel.originTrack+" "+'<i class="fa-solid fa-arrow-right"></i>'+" "+travel.destStation+" "+travel.destTrack;
-      row.appendChild(stationCell);
 
       
 
@@ -223,13 +351,9 @@ Module.register("MMM-NsInfo", {
 
     for (var i = 0, count = travelList.length; i < count; i++) {
       var travel = travelList[i];
-      const parsedPlannedDate = this.dateParser(travel.legs[0].origin.plannedDateTime);
-      var calculatedDelay = 0;
       var actualDepartureTime = travel.legs[0].origin.plannedDateTime;
       if(travel.legs[0].origin.actualDateTime !== undefined) {
-        const parsedActualDate = this.dateParser(travel.legs[0].origin.actualDateTime);
         actualDepartureTime = travel.legs[0].origin.actualDateTime
-        calculatedDelay = (parsedActualDate - parsedPlannedDate) / (1000 * 60);
       }
       var originTrack = '?';
       var destTrack = '?';
@@ -239,19 +363,31 @@ Module.register("MMM-NsInfo", {
       if (travel.legs[0].destination.actualTrack !== undefined) {
         destTrack = travel.legs[0].destination.actualTrack
       }
-      let travelData = {
-        train: travel.legs[0].product.shortCategoryName,
-        direction: travel.legs[0].direction,
-        originTrack: originTrack,
-        originStation: travel.legs[0].origin.name,
-        destTrack: destTrack,
-        destStation: travel.legs[0].destination.name,
-        plannedDepartureDate: travel.legs[0].origin.plannedDateTime,
-        destDate: travel.legs[0].destination.plannedDateTime,
-        delay: calculatedDelay,
-        crowd: travel.legs[0].crowdForecast
-      };
-      this.travels.push(travelData);
+      // let travelData = {
+      //   train: travel.legs[0].product.shortCategoryName,
+      //   direction: travel.legs[0].direction,
+      //   originTrack: originTrack,
+      //   originStation: travel.legs[0].origin.name,
+      //   destTrack: destTrack,
+      //   destStation: travel.legs[0].destination.name,
+      //   plannedDepartureDate: travel.legs[0].origin.plannedDateTime,
+      //   destDate: travel.legs[0].destination.plannedDateTime,
+      //   delay: calculatedDelay,
+      //   crowd: travel.legs[0].crowdForecast
+      // };
+      trip = new Trip(travel.legs[0].origin.name,
+        travel.legs[0].destination.name,
+        travel.legs[0].origin.plannedDateTime,
+        actualDepartureTime,
+        travel.legs[0].destination.plannedDateTime,
+        originTrack,
+        destTrack,
+        travel.legs[0].crowdForecast,
+        travel.legs[0].direction,
+        travel.legs[0].product.shortCategoryName
+        )
+
+      this.travels.push(trip);
     }
     this.show(this.config.animationSpeed, { lockString: this.identifier });
     this.loaded = true;

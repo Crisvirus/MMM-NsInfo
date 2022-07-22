@@ -1,3 +1,11 @@
+.card {
+    padding-bottom: 5px;
+    padding-top: 5px;
+    border: 1px solid white;
+    /* background-color: rgb(39, 39, 39);
+    border: 10px;
+    border-color: black; */
+}
 .train {
     text-align: left;
     padding-right: 5px;
@@ -19,15 +27,18 @@
 }
 
 .delay {
-    text-align: left;
-    color: rgb(112, 0, 0); 
+    color: rgb(112, 0, 0);
+    text-align: center;
 }
 
 .delay0 {
-    text-align: left;
     color: rgb(0, 125, 0);
+    text-align: center;
 }
 
+.crowd {
+    padding-right: 5px;
+}
 .crowd-low {
     color: rgb(0, 125, 0);
 }
@@ -49,4 +60,35 @@
     padding: 20px;
 }
 
+.card-time {
+    text-align: center;
+    padding-bottom: 5px;
+}
 
+.train-info {
+    text-align: left;
+    padding-bottom: 5px;
+}
+
+.train-route {
+    text-align: left;
+    padding-bottom: 5px;
+}
+
+.card-train-route {
+    text-align: left;
+}
+
+.card-train-type {
+    text-align: left;
+    padding-right: 5px;
+}
+
+.card-train-direction {
+    text-align: left;
+    padding-right: 5px;
+}
+
+.ns-table {
+    border: 1px solid white;
+}

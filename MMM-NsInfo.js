@@ -10,7 +10,7 @@ class intermediateStation {
   }
 }
 class Trip {
-  constructor(originStationName,destinationStationName,originPlannedTime,originActualTime,destinationPlannedTime,originPlatform,destinationPlatform,crowd,direction,trainType) {
+  constructor(originStationName,destinationStationName,originPlannedTime,originActualTime,destinationPlannedTime,originPlatform,destinationPlatform,crowd,direction,trainType,status) {
     this.originStationName = originStationName
     this.destinationStationName = destinationStationName
     this.originPlannedTime = originPlannedTime
@@ -21,6 +21,7 @@ class Trip {
     this.crowd = crowd
     this.direction = direction
     this.trainType = trainType
+    this.status = status
     const parsedPlannedDate = this.dateParser(originPlannedTime);
     const parsedActualDate = this.dateParser(originActualTime);
     this.delay = (parsedActualDate - parsedPlannedDate) / (1000 * 60);
@@ -32,7 +33,13 @@ class Trip {
   getCard() {
     var row_original = document.createElement("tr");
     var card = document.createElement("div");
-    card.className = "card";
+    if(this.status == "NORMAL") {
+      card.className = "card";
+    } else if(this.status == "CANCELLED") {
+      card.className = "card card-cancelled";
+    } else {
+      card.className = "card card-unknown";
+    }
 
     var cardTable = document.createElement("table")
     cardTable.className = "card-table"
@@ -364,6 +371,11 @@ Module.register("MMM-NsInfo", {
       if (travel.legs[0].destination.actualTrack !== undefined) {
         destTrack = travel.legs[0].destination.actualTrack
       }
+      var status="NORMAL";
+      if (travel.status !== undefined) {
+        status = travel.status;
+        console.log(status)
+      }
       // let travelData = {
       //   train: travel.legs[0].product.shortCategoryName,
       //   direction: travel.legs[0].direction,
@@ -385,7 +397,8 @@ Module.register("MMM-NsInfo", {
         destTrack,
         travel.legs[0].crowdForecast,
         travel.legs[0].direction,
-        travel.legs[0].product.shortCategoryName
+        travel.legs[0].product.shortCategoryName,
+        status
         )
 
       this.travels.push(trip);

@@ -2,10 +2,16 @@
     padding-bottom: 5px;
     padding-top: 5px;
     border: 1px solid white;
-    /* background-color: rgb(39, 39, 39);
-    border: 10px;
-    border-color: black; */
 }
+
+.card-cancelled{
+    background-color: rgb(150, 61, 61);
+}
+
+.card-unknown{
+    background-color: rgb(110, 61, 150);
+}
+
 .train {
     text-align: left;
     padding-right: 5px;

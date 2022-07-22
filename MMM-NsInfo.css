@@ -28,12 +28,12 @@
 
 .delay {
     color: rgb(112, 0, 0);
-    text-align: center;
+    text-align: left;
 }
 
 .delay0 {
-    color: rgb(0, 125, 0);
-    text-align: center;
+    color: rgb(0, 0, 0);
+    text-align: left;
 }
 
 .crowd {

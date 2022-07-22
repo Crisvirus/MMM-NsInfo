@@ -39,6 +39,7 @@ class Trip {
 
     var row = document.createElement("tr");
     var col1 = document.createElement("td");
+    col1.className = "card-time"
     var row1 = document.createElement("tr");
     var row2 = document.createElement("tr");
     var row3 = document.createElement("tr");
@@ -71,7 +72,7 @@ class Trip {
     } else {
       var delayCell = document.createElement("td");
       delayCell.className = "delay0 medium";
-      delayCell.innerHTML = "  ";
+      delayCell.innerHTML = "+0";
       console.log(Math.round(this.delay))
       row.appendChild(delayCell);
     }

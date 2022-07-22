@@ -14,16 +14,39 @@
 }
 
 .departure {
-    text-align: right;
+    text-align: left;
     padding-right: 5px;
 }
 
 .delay {
-    text-align: right;
-    color: rgb(112, 0, 0);
+    text-align: left;
+    color: rgb(112, 0, 0); 
+}
+
+.delay0 {
+    text-align: left;
+    color: rgb(0, 125, 0);
+}
+
+.crowd-low {
+    color: rgb(0, 125, 0);
+}
+
+.crowd-medium {
+    color: rgb(255, 174, 0);
+}
+
+.crowd-high {
+    color: rgb(255, 0, 0);
+}
+
+.crowd-unknown {
+    color: rgb(55, 0, 255);
 }
 
 .train-icon {
-    text-align: center;
+    text-align: left;
     padding: 20px;
 }
+
+

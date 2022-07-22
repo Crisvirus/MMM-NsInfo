@@ -7,22 +7,26 @@ Module.register("MMM-NsInfo", {
   defaults: {
     header: null,
     apiKey: null,
-    station: "Utrecht Centraal",
-    stationId: "UT",
-    maxDepartures: 5,
+    maxDepartures: 10,
     updateInterval: 5,
     initialLoadDelay: 2500,
     animationSpeed: 1000,
     retryDelay: 2500,
-    fade: true,
+    fade: false,
     fadePoint: 0.25,
-
+    originUIC: 8400621,
+    destinationUIC: 8400058,
     calendarClass: "calendar",
     tableClass: "small",
+    originUicCode: 8400058,
+    destinationUicCode: 8400058,
 
     BaseURL:
-      "https://gateway.apiportal.ns.nl/reisinformatie-api/api/v2/departures/",
-    lang: "nl"
+      "https://gateway.apiportal.ns.nl/reisinformatie-api/api/v3/trips?",
+      
+    defaultParams: 
+      "originWalk=false&originBike=false&originCar=false&destinationWalk=false&destinationBike=false&destinationCar=false&shorterChange=false&travelAssistance=false&searchForAccessibleTrip=false&localTrainsOnly=false&excludeHighSpeedTrains=false&excludeTrainsWithReservationRequired=false&yearCard=false&discount=NO_DISCOUNT&travelClass=2&passing=false&travelRequestType=DEFAULT",
+    lang: "en"
   },
 
   getStyles: function () {
@@ -35,6 +39,7 @@ Module.register("MMM-NsInfo", {
     this.scheduleUpdate(this.config.initialLoadDelay);
 
     this.updateTimer = null;
+    this.config.header = "Utrecht to Amsterdam"
   },
 
   getDom: function () {
@@ -74,36 +79,69 @@ Module.register("MMM-NsInfo", {
       var row = document.createElement("tr");
       table.appendChild(row);
 
+      var timeCell = document.createElement("td");
+      timeCell.className = "departure xsmall";
+
+      departure = travel.plannedDepartureDate
+        .split("T")[1]
+        .split("+")[0]
+        .split(":", 2)
+        .join(":");
+      
+      arrow = '<i class="fa-solid fa-arrow-right"></i>'
+      arrival = travel.destDate
+      .split("T")[1]
+      .split("+")[0]
+      .split(":", 2)
+      .join(":");
+
+      timeCell.innerHTML = departure+" "+arrow+" "+arrival;
+      row.appendChild(timeCell);
+
+      if (travel.delay > 0) {
+        var delayCell = document.createElement("td");
+        delayCell.className = "delay";
+        delayCell.innerHTML = "+" + Math.round(travel.delay);
+        row.appendChild(delayCell);
+      } else {
+        var delayCell = document.createElement("td");
+        delayCell.className = "delay0";
+        delayCell.innerHTML = "  ";
+        row.appendChild(delayCell);
+      }
+      console.log(travel.crowd);
+      var crowd = document.createElement("td");
+      if(travel.crowd == "LOW") {
+        crowd.className = "crowd-low";
+        crowd.innerHTML = '<i class="fa-solid fa-person"></i>'
+      } else if(travel.crowd == "MEDIUM") {
+        crowd.className = "crowd-medium";
+        crowd.innerHTML = '<i class="fa-solid fa-person"></i><i class="fa-solid fa-person"></i>'
+      } else if(travel.crowd == "HIGH") {
+        crowd.className = "crowd-high";
+        crowd.innerHTML = '<i class="fa-solid fa-person"></i><i class="fa-solid fa-person"></i><i class="fa-solid fa-person"></i>'
+      } else {
+        crowd.className = "crowd-unknown";
+        crowd.innerHTML = '<i class="fa-solid fa-user-slash"></i>'
+      }
+      row.appendChild(crowd);
+
       var trainCell = document.createElement("td");
       trainCell.className = "train";
       trainCell.innerHTML = travel.train;
       row.appendChild(trainCell);
 
       var DirectionCell = document.createElement("td");
-      DirectionCell.className = "direction xsmall";
+      DirectionCell.className = "direction";
       DirectionCell.innerHTML = travel.direction;
       row.appendChild(DirectionCell);
 
       var stationCell = document.createElement("td");
-      stationCell.className = "station xsmall";
-      stationCell.innerHTML = travel.station;
+      stationCell.className = "station";
+      stationCell.innerHTML = travel.originStation+" "+travel.originTrack+" "+'<i class="fa-solid fa-arrow-right"></i>'+" "+travel.destStation+" "+travel.destTrack;
       row.appendChild(stationCell);
 
-      var timeCell = document.createElement("td");
-      timeCell.className = "departure xsmall";
-      timeCell.innerHTML = travel.actualDepartureDate
-        .split("T")[1]
-        .split("+")[0]
-        .split(":", 2)
-        .join(":");
-      row.appendChild(timeCell);
-
-      if (travel.delay > 0) {
-        var delayCell = document.createElement("td");
-        delayCell.className = "delay xsmall";
-        delayCell.innerHTML = "+" + Math.round(travel.delay);
-        row.appendChild(delayCell);
-      }
+      
 
       if (this.config.fade && this.config.fadePoint < 1) {
         if (this.config.fadePoint < 0) {
@@ -139,7 +177,7 @@ Module.register("MMM-NsInfo", {
       return;
     }
 
-    var url = this.config.BaseURL + this.getParams();
+    var url = this.config.BaseURL+this.getParams();
     var self = this;
     var retry = true;
 
@@ -174,53 +212,46 @@ Module.register("MMM-NsInfo", {
 
   // Sets the parameters for the request
   getParams: function () {
-    let params = "?";
-    if (this.config.lang && this.config.stationId) {
-      params +=
-        "lang=" +
-        this.config.lang +
-        "&station=" +
-        this.config.stationId +
-        "&maxJourneys=" +
-        this.config.maxDepartures;
-    } else {
-      return "There is something wrong with the parameters";
-    }
+    params = "originUicCode="+this.config.originUIC+"&destinationUicCode="+this.config.destinationUIC+"&"+this.config.defaultParams
     return params;
   },
 
   // Creates an Object with all data neccesary for the DOM Render;
   processTravel: function (data) {
     this.travel = [];
-    let travelList = data.payload.departures;
+    let travelList = data.trips;
 
     for (var i = 0, count = travelList.length; i < count; i++) {
       var travel = travelList[i];
-      const parsedPlannedDate = this.dateParser(travel.plannedDateTime);
-      const parsedActualDate = this.dateParser(travel.actualDateTime);
-      const calculatedDelay =
-        (parsedActualDate - parsedPlannedDate) / (1000 * 60);
-      if (travel.plannedTrack !== undefined) {
-        let travelData = {
-          train: travel.product.shortCategoryName,
-          direction: travel.direction,
-          station: travel.plannedTrack,
-          plannedDepartureDate: travel.plannedDateTime,
-          actualDepartureDate: travel.actualDateTime,
-          delay: calculatedDelay
-        };
-        this.travels.push(travelData);
-      } else {
-        let travelData = {
-          train: travel.product.shortCategoryName,
-          direction: travel.direction,
-          station: " ",
-          plannedDepartureDate: travel.plannedDateTime,
-          actualDepartureDate: travel.actualDateTime,
-          delay: calculatedDelay
-        };
-        this.travels.push(travelData);
+      const parsedPlannedDate = this.dateParser(travel.legs[0].origin.plannedDateTime);
+      var calculatedDelay = 0;
+      var actualDepartureTime = travel.legs[0].origin.plannedDateTime;
+      if(travel.legs[0].origin.actualDateTime !== undefined) {
+        const parsedActualDate = this.dateParser(travel.legs[0].origin.actualDateTime);
+        actualDepartureTime = travel.legs[0].origin.actualDateTime
+        calculatedDelay = (parsedActualDate - parsedPlannedDate) / (1000 * 60);
       }
+      var originTrack = '?';
+      var destTrack = '?';
+      if (travel.legs[0].origin.actualTrack !== undefined) {
+        originTrack = travel.legs[0].origin.actualTrack
+      }
+      if (travel.legs[0].destination.actualTrack !== undefined) {
+        destTrack = travel.legs[0].destination.actualTrack
+      }
+      let travelData = {
+        train: travel.legs[0].product.shortCategoryName,
+        direction: travel.legs[0].direction,
+        originTrack: originTrack,
+        originStation: travel.legs[0].origin.name,
+        destTrack: destTrack,
+        destStation: travel.legs[0].destination.name,
+        plannedDepartureDate: travel.legs[0].origin.plannedDateTime,
+        destDate: travel.legs[0].destination.plannedDateTime,
+        delay: calculatedDelay,
+        crowd: travel.legs[0].crowdForecast
+      };
+      this.travels.push(travelData);
     }
     this.show(this.config.animationSpeed, { lockString: this.identifier });
     this.loaded = true;

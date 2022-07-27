@@ -94,7 +94,10 @@
     text-align: left;
     padding-right: 5px;
 }
-
+.route-table {
+    text-align: left;
+    padding-right: 0px;
+}
 .ns-table {
     border: 1px solid white;
 }
